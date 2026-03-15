@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Improvado — CEO Post Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0b;
+  --surface:#111113;
+  --surface2:#18181c;
+  --border:#222226;
+  --border2:#2e2e34;
+  --green:#22c55e;
+  --green-dim:#166534;
+  --green-bg:#0f2018;
+  --text:#e8e8ea;
+  --text2:#9898a0;
+  --text3:#5a5a62;
+  --red:#ef4444;
+  --red-bg:#1a0a0a;
+  --amber:#f59e0b;
+  --amber-bg:#1a1200;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.6;min-height:100vh}
+.scanline{position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:0}
+.app{max-width:960px;margin:0 auto;padding:48px 24px;position:relative;z-index:1}
+.header{margin-bottom:48px}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.logo-mark{width:28px;height:28px;border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:14px;height:14px;fill:var(--green)}
+.logo-name{font-family:var(--mono);font-size:13px;color:var(--green);letter-spacing:.08em;text-transform:uppercase}
+.logo-sep{font-family:var(--mono);font-size:13px;color:var(--text3);margin:0 4px}
+.logo-sub{font-family:var(--mono);font-size:13px;color:var(--text2);letter-spacing:.04em}
+h1{font-family:var(--sans);font-size:32px;font-weight:300;color:var(--text);line-height:1.2;letter-spacing:-.02em;margin-bottom:10px}
+h1 strong{font-weight:500;color:#fff}
+.subtitle{font-size:14px;color:var(--text2);font-family:var(--mono);letter-spacing:.02em}
+.input-section{background:var(--surface);border:1px solid var(--border2);padding:24px;margin-bottom:32px}
+.input-label{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:block}
+.input-row{display:flex;gap:12px;align-items:flex-start}
+textarea{background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:14px;padding:12px 14px;width:100%;resize:none;outline:none;line-height:1.5;transition:border-color .15s}
+textarea:focus{border-color:var(--green)}
+textarea::placeholder{color:var(--text3)}
+.btn-generate{background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px;cursor:pointer;white-space:nowrap;transition:opacity .15s;flex-shrink:0;align-self:flex-end}
+.btn-generate:hover{opacity:.85}
+.btn-generate:disabled{opacity:.4;cursor:not-allowed}
+.angles-section{margin-top:16px}
+.angles-label{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:.06em;margin-bottom:8px;display:block}
+.angles{display:flex;gap:8px;flex-wrap:wrap}
+.angle-pill{font-family:var(--mono);font-size:11px;color:var(--text2);border:1px solid var(--border);padding:4px 10px;cursor:pointer;transition:all .15s;background:transparent}
+.angle-pill:hover{border-color:var(--green);color:var(--green)}
+.status-bar{font-family:var(--mono);font-size:12px;color:var(--text3);margin-bottom:24px;display:flex;align-items:center;gap:8px;min-height:20px}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.status-dot.active{background:var(--green);animation:pulse 1s infinite}
+.status-dot.done{background:var(--green)}
+.status-dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.loading-stages{margin-bottom:32px;display:none}
+.loading-stages.visible{display:block}
+.stage{font-family:var(--mono);font-size:12px;padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;color:var(--text3)}
+.stage.done{color:var(--text2)}
+.stage.active{color:var(--green)}
+.stage-icon{width:14px;text-align:center;flex-shrink:0}
+.variants{display:flex;flex-direction:column;gap:24px}
+.variant-card{background:var(--surface);border:1px solid var(--border2);overflow:hidden;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.variant-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.variant-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.variant-num{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:.06em}
+.archetype-tag{font-family:var(--mono);font-size:11px;padding:3px 8px;border:1px solid var(--border2);color:var(--text2)}
+.score-badge{font-family:var(--mono);font-size:12px;font-weight:500;padding:3px 10px}
+.score-high{background:var(--green-bg);color:var(--green);border:1px solid var(--green-dim)}
+.score-mid{background:var(--amber-bg);color:var(--amber);border:1px solid #78350f}
+.score-low{background:var(--red-bg);color:var(--red);border:1px solid #7f1d1d}
+.variant-body{padding:20px}
+.post-text{font-size:15px;line-height:1.7;color:var(--text);white-space:pre-wrap;margin-bottom:20px;border-left:2px solid var(--border2);padding-left:16px}
+.rationale{background:var(--surface2);padding:14px 16px;margin-bottom:16px}
+.rationale-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.rationale-text{font-size:13px;color:var(--text2);line-height:1.6}
+.rule-check{font-family:var(--mono);font-size:11px;color:var(--green);display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px;border:1px solid var(--border2);cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
+.btn:hover{border-color:var(--text2);color:var(--text)}
+.btn-approve{border-color:var(--green-dim);color:var(--green)}
+.btn-approve:hover{background:var(--green-bg)}
+.btn-approve.active{background:var(--green-bg);border-color:var(--green)}
+.btn-reject{border-color:#7f1d1d;color:var(--red)}
+.btn-reject:hover{background:var(--red-bg)}
+.btn-reject.active{background:var(--red-bg);border-color:var(--red)}
+.btn-copy.copied{color:var(--green);border-color:var(--green-dim)}
+.visual-section{margin-top:16px;border-top:1px solid var(--border);padding-top:16px}
+.visual-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.visual-cards-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.visual-card-wrap{display:flex;flex-direction:column;gap:6px}
+.visual-card-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase}
+.visual-card-svg{width:100%;aspect-ratio:1.91/1;border:1px solid var(--border);overflow:hidden;background:#0d1b2a;cursor:pointer;transition:border-color .15s}
+.visual-card-svg:hover{border-color:var(--green)}
+.visual-card-svg.selected{border-color:var(--green);box-shadow:0 0 0 1px var(--green)}
+.visual-card-svg svg{width:100%;height:100%;display:block}
+.btn-copy-prompt{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border:1px solid var(--border2);cursor:pointer;background:transparent;color:var(--text3);transition:all .15s;width:100%}
+.btn-copy-prompt:hover{border-color:var(--green);color:var(--green)}
+.btn-copy-prompt.copied{color:var(--green);border-color:var(--green-dim)}
+.visual-generating{font-family:var(--mono);font-size:11px;color:var(--text3);padding:12px 0;display:flex;align-items:center;gap:6px}
+.visual-gen-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 1s infinite}
+.error-msg{background:var(--red-bg);border:1px solid #7f1d1d;padding:16px;font-family:var(--mono);font-size:12px;color:var(--red);margin-bottom:24px;display:none}
+.error-msg.visible{display:block}
+.api-note{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:12px;line-height:1.6;padding:12px;border:1px solid var(--border);background:var(--surface2)}
+.footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:gap}
+.footer-text{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.pipeline-info{font-family:var(--mono);font-size:11px;color:var(--text3);text-align:right}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="app">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 14 14"><rect x="1" y="1" width="5" height="5"/><rect x="8" y="1" width="5" height="5"/><rect x="1" y="8" width="5" height="5"/><rect x="8" y="8" width="5" height="5"/></svg>
+      </div>
+      <span class="logo-name">Improvado</span>
+      <span class="logo-sep">/</span>
+      <span class="logo-sub">CEO Post Generator</span>
+    </div>
+    <h1>Generate <strong>LinkedIn posts</strong><br>in Daniel's voice</h1>
+    <div class="subtitle">3 variants · scored · ready for approval</div>
+  </div>
+
+  <div class="input-section">
+    <span class="input-label">Topic angle</span>
+    <div class="input-row">
+      <textarea id="topic" rows="2" placeholder="e.g. How much of your company is tokenized? Not digitized. Tokenized."></textarea>
+      <button class="btn-generate" id="generateBtn" onclick="generate()">Generate</button>
+    </div>
+    <div class="angles-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span class="angles-label">Topic suggestions — click to use</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn" style="font-size:10px;padding:3px 10px" onclick="shuffleAngles()">&#8635; More suggestions</button>
+          <button class="btn" style="font-size:10px;padding:3px 8px;color:var(--text3)" onclick="toggleEditAngles()">+ Add topics</button>
+        </div>
+      </div>
+      <div class="angles" id="anglesList"></div>
+      <div id="editAnglesPanel" style="display:none;margin-top:10px">
+        <span class="angles-label" style="margin-bottom:6px;display:block">Add your own topic angles — one per line</span>
+        <textarea id="anglesEditor" rows="5" placeholder="e.g. Why most attribution models fail CMOs&#10;The hidden cost of manual reporting&#10;What AI agents actually need to work" style="width:100%;font-size:12px;font-family:var(--mono);line-height:1.6"></textarea>
+        <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
+          <button class="btn btn-approve" style="font-size:10px;padding:4px 12px" onclick="saveAngles()">Save to bank</button>
+          <button class="btn" style="font-size:10px;padding:4px 10px;color:var(--text3)" onclick="toggleEditAngles()">Cancel</button>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:auto">Saved across sessions</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="api-note" id="apiNote">
+    <strong>API key required.</strong> This demo calls the Anthropic API directly. Add your key to the URL: <code>?key=sk-ant-...</code> or set <code>VITE_ANTHROPIC_KEY</code> as an environment variable if self-hosting. The key is never stored or logged.
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="status-bar" id="statusBar">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Ready</span>
+  </div>
+
+  <div class="loading-stages" id="loadingStages">
+    <div class="stage" id="stage1"><span class="stage-icon">_</span>Loading voice profile + approved posts</div>
+    <div class="stage" id="stage2"><span class="stage-icon">_</span>Assembling system prompt (3 archetypes, hard rules)</div>
+    <div class="stage" id="stage3"><span class="stage-icon">_</span>Calling Claude API</div>
+    <div class="stage" id="stage4"><span class="stage-icon">_</span>Parsing variants + scoring</div>
+  </div>
+
+  <div class="variants" id="variants"></div>
+
+  <div class="footer">
+    <div class="footer-text">Built with Claude Code · Anthropic API · pipeline.py</div>
+    <div class="pipeline-info">voice_profile.json v2.0 · 4 approved reference posts</div>
+  </div>
+</div>
+
+<script>
+const SYSTEM_PROMPT = `You are a ghostwriter for Daniel Kravtsov, CEO and Co-founder of Improvado — a marketing data infrastructure and agentic execution platform for enterprise teams.
+
+Your job is to generate 3 LinkedIn post variants for a given topic angle. Each variant must sound authentically like Daniel — not like a marketing team, not like a generic LinkedIn influencer, and not like an AI.
+
+Daniel's approved posts — internalize these:
+Post 1 (OpenClaw): Opens with X = Y for Z equation. Names competitor directly, shows feature parity across 3 points with parallel structure, closes with binary contrast label: "Personal assistant vs. operations system."
+Post 2 (MCP): Opens with stat dismissing status quo. Numbered list where each item starts with single-word label + period. Closes with category redefinition + comment-drop CTA naming exact keyword.
+Post 3 (Singularity loop): 6 short paragraphs, each a single idea. Closes with "Feel the AGI." — 3 words, full stop.
+Post 4 (Death of backlog): Phase-shift declaration opener. Builds to mindset shift. Closes with direct question asking reader to act now.
+
+HARD RULES — non-negotiable:
+- NEVER use em dashes
+- ZERO exclamation marks anywhere
+- No corporate opener ("excited to," "proud to," "thrilled to")
+- Closing line must be EXACTLY one of: binary contrast label, direct question, or philosophical one-liner kicker
+- CTA format if used: "Drop '[keyword]' in the comments"
+- Stats allowed: 1000+ data sources, 90 hours/week (ASUS), $12.9M/year (Gartner), 63% campaign data quality issues, 75% faster campaign launch
+- Under 250 words per post, prefer under 200
+- No emojis, max 3 hashtags
+
+THREE STRUCTURAL ARCHETYPES — use one per variant:
+
+Archetype 1 — Competitor Reframe:
+[Product] = [Competitor] for [use case].
+[Competitor] is [what it's good for]. Not built for [this use case].
+[We've been building this for X]. Same [N] things, built for [context]:
+[Label]. [Competitor does X. Product does Y.]
+[Label]. [Competitor does X. Product does Y.]
+[Label]. [Competitor does X. Product does Y.]
+[Binary contrast label.] (link in comments)
+
+Archetype 2 — Numbered Execution Loop:
+[Stat that makes status quo look broken.]
+[What's new / the reframe.] [What it is, not what it isn't.]
+1. [Label.] [1-2 sentences.]
+2. [Label.] [1-2 sentences.]
+3. [Label.] [1-2 sentences.]
+4. [Label.] [1-2 sentences.]
+5. [Label.] [1-2 sentences.]
+This isn't [old category]. This is [new category].
+Drop "[keyword]" in the comments and I'll send it.
+
+Archetype 3 — Philosophical One-Liner Closer:
+[Observation — one sentence.]
+[What this means — one sentence.]
+[Specific example or proof — one sentence.]
+[Escalation — one sentence.]
+[Consequence or reframe — one sentence.]
+[Philosophical closer or direct question.]
+
+SCORING — each post scored 1-10:
++2 First line uses one of 4 hook patterns
++2 Uses structural archetype correctly
++2 No em dashes, no exclamation marks
++1 Closing line matches approved format
++1 Signal phrase used naturally
++1 Under 200 words
++1 Improvado/stat used naturally
+-3 per violation: em dash, exclamation mark, corporate opener, generic closer, 4+ hashtags
+
+Return ONLY valid JSON, no markdown, no preamble:
+{
+  "posts": [
+    {
+      "variant": "Variant 1",
+      "archetype": "Competitor Reframe",
+      "angle_label": "brief label",
+      "post": "full post text with actual newlines",
+      "word_count": 142,
+      "score": 9,
+      "score_breakdown": "2+2+2+1+1+1 = 9, no deductions",
+      "rule_check": "Zero em dashes. Zero exclamation marks. Binary contrast closer.",
+      "strengths": "2-3 specific strengths",
+      "watch_out": "any risk or None"
+    }
+  ]
+}`;
+
+const VOICE_CONTEXT = `Product context: Improvado — AI-powered marketing analytics platform. "Your marketing now runs and improves itself on autopilot." 1000+ data source connectors. Knowledge graph connecting marketing + sales + finance + creative. Agentic execution: designs experiments, deploys across platforms, monitors, reallocates. Creative intelligence: extracts archetypes from video ads, maps to ICP segments. Pre-flight validation: 63% of campaign data has quality issues before launch. Campaigns launch 75% faster with guardrails. ASUS saves 90 hours/week. Bad data costs $12.9M/year (Gartner). SOC 2 Type II, HIPAA, GDPR. Zero-training policy.
+
+Signal phrases Daniel uses: "We've been building X for three years" / "Feel the AGI" / "This isn't X, this is Y" / "What are the signals?" / "Even if you use AI" / "Personal assistant vs. operations system" / "Drop [keyword] in the comments"`;
+
+const DEFAULT_ANGLES = [
+  "Creative intelligence as quantitative discipline",
+  "63% of campaign data has errors before launch",
+  "Idea to campaign and back in one prompt",
+  "CMO dashboard as conversation not a screen",
+  "How much of your company is tokenized?",
+  "Why most attribution models fail CFOs",
+  "The death of the weekly marketing report",
+  "Your media team optimizes bids. Your creative team guesses.",
+  "AI agents need context. Most companies have data, not context.",
+  "The marketing stack isn't the problem. The gaps between tools are.",
+  "What happens when the cost of running an experiment hits zero",
+  "Tracking marketing performance is not a human job anymore",
+  "Every company claims to be data-driven. Most are dashboard-driven.",
+  "The closed loop: idea to campaign to measurement to next idea",
+  "Pre-flight validation catches what post-mortems miss"
+];
+
+let currentAngleOffset = 0;
+const PILLS_VISIBLE = 5;
+
+function loadAngles() {
+  try {
+    const saved = localStorage.getItem('improvado_angles');
+    const custom = saved ? JSON.parse(saved) : [];
+    return [...custom, ...DEFAULT_ANGLES.filter(a => !custom.includes(a))];
+  } catch(e) { return DEFAULT_ANGLES; }
+}
+
+function shuffleAngles() {
+  const all = loadAngles();
+  currentAngleOffset = (currentAngleOffset + PILLS_VISIBLE) % all.length;
+  const slice = [];
+  for (let i = 0; i < PILLS_VISIBLE; i++) {
+    slice.push(all[(currentAngleOffset + i) % all.length]);
+  }
+  renderAnglePills(slice);
+}
+
+function saveAngles() {
+  const raw = document.getElementById('anglesEditor').value;
+  const newAngles = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  if (newAngles.length === 0) { toggleEditAngles(); return; }
+  try {
+    const existing = JSON.parse(localStorage.getItem('improvado_angles') || '[]');
+    const merged = [...new Set([...newAngles, ...existing])];
+    localStorage.setItem('improvado_angles', JSON.stringify(merged));
+  } catch(e) {
+    localStorage.setItem('improvado_angles', JSON.stringify(newAngles));
+  }
+  document.getElementById('anglesEditor').value = '';
+  renderAnglePills(loadAngles().slice(0, PILLS_VISIBLE));
+  toggleEditAngles();
+}
+
+function renderAnglePills(angles) {
+  const list = document.getElementById('anglesList');
+  list.innerHTML = '';
+  angles.forEach(a => {
+    const pill = document.createElement('span');
+    pill.className = 'angle-pill';
+    pill.textContent = a;
+    pill.onclick = () => setAngle(pill);
+    list.appendChild(pill);
+  });
+}
+
+function toggleEditAngles() {
+  const panel = document.getElementById('editAnglesPanel');
+  const isHidden = panel.style.display === 'none';
+  panel.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) document.getElementById('anglesEditor').value = '';
+}
+
+function initAngles() {
+  renderAnglePills(loadAngles().slice(0, PILLS_VISIBLE));
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAngles);
+} else {
+  initAngles();
+}
+  const params = new URLSearchParams(window.location.search);
+  return params.get('key') || window.ANTHROPIC_KEY || '';
+}
+
+function setAngle(el) {
+  document.getElementById('topic').value = el.textContent;
+}
+
+function setStatus(text, state) {
+  document.getElementById('statusText').textContent = text;
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot' + (state ? ' ' + state : '');
+}
+
+function setStage(n, state) {
+  const el = document.getElementById('stage' + n);
+  el.className = 'stage ' + state;
+  el.querySelector('.stage-icon').textContent = state === 'done' ? '✓' : state === 'active' ? '>' : '_';
+}
+
+function scoreClass(s) {
+  return s >= 9 ? 'score-high' : s >= 7 ? 'score-mid' : 'score-low';
+}
+
+async function generateVisualCards(post, variantIndex, container, apiKey) {
+  const lines = post.split('\n').filter(l => l.trim());
+  const headline = lines[0] || post.slice(0, 80);
+  const subline = lines[1] || lines[2] || '';
+
+  const SVG_SYSTEM = `You are a designer creating LinkedIn post visuals for Improvado. Generate 3 SVG cards (viewBox="0 0 1200 628").
+
+Visual style: deep navy background #0a0e1a, purple/violet accents #7c3aed #8b5cf6 #a78bfa, white text #ffffff, secondary text #c4b5fd, thin connector lines in purple, rounded rectangles for labels, glowing node circles.
+
+3 styles:
+1. Knowledge graph — 5-7 connected circular nodes labeled with key terms from the post, thin purple lines connecting them, soft glow (3 concentric circles opacity 0.1/0.2/0.8) on each node
+2. Data diagram — hierarchical rounded-rect boxes connected by lines, showing post concept as structured taxonomy, dark purple fills, white labels
+3. Bold statement — large white headline text (first line of post, max 8 words), purple accent bar, "IMPROVADO" wordmark bottom right in #a78bfa
+
+STRICT RULES:
+- Each SVG must be under 1800 characters
+- Use only rect, circle, line, text, path elements
+- No CDATA, no embedded CSS, no foreignObject
+- All text must use font-family="sans-serif"
+- Escape any quotes inside SVG attributes with &quot;
+
+Return ONLY this exact JSON structure, nothing else:
+{"cards":[{"label":"Knowledge graph","svg":"SVG_HERE"},{"label":"Data diagram","svg":"SVG_HERE"},{"label":"Bold statement","svg":"SVG_HERE"}]}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        system: SVG_SYSTEM,
+        messages: [{role:'user', content:`Create 3 LinkedIn visual cards for this post. Key headline: "${headline}". Subtext: "${subline}". Full post: ${post}`}]
+      })
+    });
+    const data = await resp.json();
+    const raw = data.content.find(b => b.type === 'text')?.text || '';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    let result;
+    try {
+      result = JSON.parse(clean);
+    } catch(parseErr) {
+      const match = clean.match(/\{[\s\S]*"cards"\s*:\s*\[[\s\S]*\]/);
+      if (match) {
+        try {
+          const partial = match[0] + (match[0].endsWith(']') ? '}' : ']}');
+          result = JSON.parse(partial);
+        } catch(e2) {
+          throw new Error('Could not parse visual cards response');
+        }
+      } else {
+        throw new Error('No cards found in response');
+      }
+    }
+    renderSVGCards(result.cards, variantIndex, container);
+  } catch(e) {
+    container.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--text3)">Visual generation failed — ${e.message}</div>`;
+  }
+}
+
+function renderSVGCards(cards, vi, container) {
+  container.innerHTML = '';
+  const row = document.createElement('div');
+  row.className = 'visual-cards-row';
+  cards.forEach((c, j) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'visual-card-wrap';
+    const svgWrap = document.createElement('div');
+    svgWrap.className = 'visual-card-svg';
+    svgWrap.id = `svgcard-${vi}-${j}`;
+    svgWrap.innerHTML = c.svg || '';
+    svgWrap.onclick = () => {
+      container.querySelectorAll('.visual-card-svg').forEach(s => s.classList.remove('selected'));
+      svgWrap.classList.add('selected');
+    };
+    if (j === 0) svgWrap.classList.add('selected');
+    const label = document.createElement('div');
+    label.className = 'visual-card-label';
+    label.textContent = c.label || `Style ${j+1}`;
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:6px';
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'btn-copy-prompt';
+    copyBtn.style.flex = '1';
+    copyBtn.textContent = 'Copy SVG';
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(c.svg || '').catch(()=>{});
+      copyBtn.textContent = 'Copied';
+      copyBtn.classList.add('copied');
+      setTimeout(()=>{ copyBtn.textContent='Copy SVG'; copyBtn.classList.remove('copied'); }, 2000);
+    };
+    const dlBtn = document.createElement('button');
+    dlBtn.className = 'btn-copy-prompt';
+    dlBtn.style.flex = '1';
+    dlBtn.textContent = 'Download';
+    dlBtn.onclick = () => {
+      const blob = new Blob([c.svg || ''], {type:'image/svg+xml'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `improvado-visual-${vi+1}-${c.label||j+1}.svg`.replace(/\s+/g,'-').toLowerCase();
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    btnRow.appendChild(copyBtn);
+    btnRow.appendChild(dlBtn);
+    wrap.appendChild(svgWrap);
+    wrap.appendChild(label);
+    wrap.appendChild(btnRow);
+    row.appendChild(wrap);
+  });
+  container.appendChild(row);
+}
+
+function copyPrompt(vi, pi) {
+  const el = document.getElementById(`vp-${vi}-${pi}`);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).catch(() => {});
+}
+
+async function generate() {
+  const topic = document.getElementById('topic').value.trim();
+  if (!topic) { alert('Enter a topic angle first.'); return; }
+
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    document.getElementById('errorMsg').textContent = 'No API key found. Add ?key=sk-ant-... to the URL.';
+    document.getElementById('errorMsg').classList.add('visible');
+    return;
+  }
+
+  document.getElementById('errorMsg').classList.remove('visible');
+  document.getElementById('apiNote').style.display = 'none';
+  document.getElementById('generateBtn').disabled = true;
+  document.getElementById('variants').innerHTML = '';
+  document.getElementById('loadingStages').classList.add('visible');
+  setStatus('Running pipeline...', 'active');
+
+  setStage(1, 'active'); setStage(2, ''); setStage(3, ''); setStage(4, '');
+  await sleep(400);
+  setStage(1, 'done'); setStage(2, 'active');
+  await sleep(300);
+  setStage(2, 'done'); setStage(3, 'active');
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        system: SYSTEM_PROMPT + '\n\n' + VOICE_CONTEXT,
+        messages: [{ role: 'user', content: `Generate 3 LinkedIn post variants for this angle: ${topic}` }]
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.error?.message || resp.statusText);
+    }
+
+    const data = await resp.json();
+    setStage(3, 'done'); setStage(4, 'active');
+    await sleep(300);
+
+    const raw = data.content.find(b => b.type === 'text')?.text || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+    setStage(4, 'done');
+
+    renderPosts(result.posts, topic);
+    setStatus(`Done — 3 variants generated`, 'done');
+    document.getElementById('loadingStages').classList.remove('visible');
+
+  } catch(e) {
+    setStatus('Error', 'error');
+    document.getElementById('errorMsg').textContent = 'API error: ' + e.message;
+    document.getElementById('errorMsg').classList.add('visible');
+    document.getElementById('loadingStages').classList.remove('visible');
+  }
+
+  document.getElementById('generateBtn').disabled = false;
+}
+
+function renderPosts(posts, topic) {
+  const container = document.getElementById('variants');
+  posts.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'variant-card';
+    const sc = p.score || 8;
+    card.innerHTML = `
+      <div class="variant-header">
+        <div class="variant-meta">
+          <span class="variant-num">Variant ${i+1}</span>
+          <span class="archetype-tag">${p.archetype || ''}</span>
+          ${p.angle_label ? `<span class="archetype-tag" style="color:var(--text3)">${p.angle_label}</span>` : ''}
+        </div>
+        <span class="score-badge ${scoreClass(sc)}">${sc}/10</span>
+      </div>
+      <div class="variant-body">
+        <div class="post-text" id="posttext-${i}">${escHtml(p.post || '')}</div>
+        <div class="rule-check">&#10003; ${escHtml(p.rule_check || 'Hard rules verified')}</div>
+        <div class="rationale" style="margin-bottom:8px">
+          <div class="rationale-label">Score breakdown</div>
+          <div class="rationale-text">${escHtml(p.score_breakdown || '')}</div>
+        </div>
+        <div class="rationale">
+          <div class="rationale-label">Strengths</div>
+          <div class="rationale-text">${escHtml(p.strengths || '')}</div>
+          ${p.watch_out && p.watch_out !== 'None' ? `<div class="rationale-label" style="margin-top:8px;color:var(--amber)">Watch out for</div><div class="rationale-text" style="color:var(--text2)">${escHtml(p.watch_out)}</div>` : ''}
+        </div>
+        <div class="actions" style="margin-top:16px">
+          <button class="btn btn-approve" id="approve-${i}" onclick="vote(${i},'approve')">Approve</button>
+          <button class="btn btn-reject" id="reject-${i}" onclick="vote(${i},'reject')">Reject</button>
+          <button class="btn btn-copy" id="copy-${i}" onclick="copyPost(${i})">Copy post</button>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:auto;align-self:center">${p.word_count || '—'} words</span>
+        </div>
+        <div class="visual-section">
+          <div class="visual-label">Visual cards — generated for this post</div>
+          <div class="visual-prompts" id="visuals-${i}">
+            <div class="visual-generating"><span class="visual-gen-dot"></span>Generating image prompts...</div>
+          </div>
+        </div>
+      </div>`;
+    container.appendChild(card);
+    const apiKey = getApiKey();
+    generateVisualCards(p.post || '', i, document.getElementById(`visuals-${i}`), apiKey);
+  });
+}
+
+function vote(i, v) {
+  const approveBtn = document.getElementById(`approve-${i}`);
+  const rejectBtn = document.getElementById(`reject-${i}`);
+  approveBtn.classList.toggle('active', v === 'approve');
+  rejectBtn.classList.toggle('active', v === 'reject');
+}
+
+function copyPost(i) {
+  const el = document.getElementById(`posttext-${i}`);
+  navigator.clipboard.writeText(el.textContent).catch(() => {});
+  const btn = document.getElementById(`copy-${i}`);
+  btn.textContent = 'Copied';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy post'; btn.classList.remove('copied'); }, 2000);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+document.getElementById('topic').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) generate();
+});
+</script>
+</body>
+</html>
