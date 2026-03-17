@@ -93,6 +93,7 @@ textarea::placeholder{color:var(--text3)}
 .btn-reject:hover{background:var(--red-bg)}
 .btn-reject.active{background:var(--red-bg);border-color:var(--red)}
 .btn-copy.copied{color:var(--green);border-color:var(--green-dim)}
+.btn-linkedin{border-color:#005582;color:#0a66c2}.btn-linkedin:hover{background:#00294a;border-color:#0a66c2;color:#5aafff}
 .visual-section{margin-top:16px;border-top:1px solid var(--border);padding-top:16px}
 .visual-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
 .visual-cards-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -585,6 +586,7 @@ function renderPosts(posts, topic) {
           <button class="btn btn-approve" id="approve-${i}" onclick="vote(${i},'approve')">Approve</button>
           <button class="btn btn-reject" id="reject-${i}" onclick="vote(${i},'reject')">Reject</button>
           <button class="btn btn-copy" id="copy-${i}" onclick="copyPost(${i})">Copy post</button>
+          <button class="btn btn-linkedin" id="linkedin-${i}" onclick="shareToLinkedIn(${i})">Share on LinkedIn</button>
           <span style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:auto;align-self:center">${p.word_count || '—'} words</span>
         </div>
         <div class="visual-section">
@@ -614,6 +616,12 @@ function copyPost(i) {
   btn.textContent = 'Copied';
   btn.classList.add('copied');
   setTimeout(() => { btn.textContent = 'Copy post'; btn.classList.remove('copied'); }, 2000);
+}
+
+function shareToLinkedIn(i) {
+  const el = document.getElementById(`posttext-${i}`);
+  const text = encodeURIComponent(el.textContent.trim());
+  window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}`, '_blank', 'noopener,noreferrer');
 }
 
 function escHtml(s) {
