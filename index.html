@@ -264,7 +264,9 @@ Return ONLY valid JSON, no markdown, no preamble:
   ]
 }`;
 
-const VOICE_CONTEXT = `Product context: Improvado — AI-powered marketing analytics platform. "Your marketing now runs and improves itself on autopilot." 1000+ data source connectors. Knowledge graph connecting marketing + sales + finance + creative. Agentic execution: designs experiments, deploys across platforms, monitors, reallocates. Creative intelligence: extracts archetypes from video ads, maps to ICP segments. Pre-flight validation: 63% of campaign data has quality issues before launch. Campaigns launch 75% faster with guardrails. ASUS saves 90 hours/week. Bad data costs $12.9M/year (Gartner). SOC 2 Type II, HIPAA, GDPR. Zero-training policy.
+const VOICE_CONTEXT = `Product context: Improvado — AI-powered marketing analytics and intelligence platform. Single platform: data extraction, transformation, governance, attribution, AI Agent, native dashboards, automated reporting. 500+ pre-built connectors. 250+ pre-built governance rules. Marketing Common Data Model (MCDM) standardizes all source data. AI Agent: natural language to SQL in under 10 seconds, builds dashboards, detects anomalies. Native dashboards created/edited via plain English. Pre-flight validation: 63% of campaign data has quality issues before launch. UTM validation, naming convention enforcement, budget pacing. 40–65% reduction in total cost of ownership. ASUS saves 90 hours/week. Eicoff saves $500K/year in staffing; onboarded 15x faster. Booyah Advertising: 99.9% data accuracy. Signal Theory: 8x faster reporting; 1 analyst handles 10 global clients. Bad data costs $12.9M/year (Gartner). SOC 2 Type II, HIPAA, GDPR. Rated #1 customer support on G2 in marketing analytics. Trusted by Fortune 500 and global agencies.
+
+Daniel's own quote: "Marketing leaders need more than static reports today. They expect answers and the ability to act immediately."
 
 Signal phrases Daniel uses: "We've been building X for three years" / "Feel the AGI" / "This isn't X, this is Y" / "What are the signals?" / "Even if you use AI" / "Personal assistant vs. operations system" / "Drop [keyword] in the comments"`;
 
@@ -319,7 +321,37 @@ const DEFAULT_ANGLES = [
   "The experiment cost is approaching zero. Most companies haven't changed their experiment rate.",
   "Measurement isn't the end of the campaign. It's the beginning of the next one.",
   "The gap between marketing strategy and marketing execution has never been larger. Or more solvable.",
-  "What changes when every marketing decision is made with real-time data instead of last month's report?"
+  "What changes when every marketing decision is made with real-time data instead of last month's report?",
+  // Grounded in real customer outcomes
+  "Eicoff cut $500K in annual staffing costs. The team didn't disappear. The manual work did.",
+  "One analyst. Ten global clients. That's what 8x faster reporting actually means.",
+  "99.9% data accuracy is not a product claim. It's a business model.",
+  "80–100 hours a week wasted on pulling data. That's two full-time salaries doing spreadsheet work.",
+  "The onboarding that used to take 15x longer was an engineering dependency problem, not a talent problem.",
+  // MCDM / data model
+  "The Marketing Common Data Model is not a feature. It's the reason 500 sources can coexist.",
+  "Standardization is not boring. It's the unlock. Everything downstream of bad schema is wrong.",
+  "UTM errors don't show up in the dashboard. They show up in the board deck six weeks later.",
+  "Naming conventions sound like a process problem. They are a revenue attribution problem.",
+  // Governance
+  "250 pre-built governance rules. Most teams have zero. That gap is where budget disappears.",
+  "Budget pacing without real-time data is not pacing. It's guessing with historical averages.",
+  "Pre-launch checks catch what post-mortems autopsied. The order matters.",
+  "Data governance used to be the reason campaigns moved slowly. Now it's the reason they don't break.",
+  // AI Agent / NL to SQL
+  "Natural language to SQL in under 10 seconds. The analyst's job didn't end. The bottleneck did.",
+  "Every analyst who says 'I don't do SQL' now has a different problem. A strategy problem.",
+  "The dashboard isn't the product. The answer is the product. Most tools still build dashboards.",
+  "Dashboards built and edited in plain English. The BI team didn't shrink. It got promoted.",
+  // Attribution
+  "First-click to data-driven multi-touch attribution without new pixels. That's what 'no new implementation' means.",
+  "Attribution models don't fail because they're wrong. They fail because the underlying data is wrong.",
+  "The CFO wants to know what actually drove revenue. The MTA model is only as good as the inputs.",
+  // TCO / enterprise positioning
+  "40–65% reduction in total cost of ownership. That's what platform consolidation actually means.",
+  "The real cost of your marketing stack is not the line items. It's the integrations between them.",
+  "Fortune 500 companies don't buy software. They buy risk reduction and time compression.",
+  "#1 support rating on G2 means nothing caught fire. In enterprise software, that's the product."
 ];
 
 let currentAngleOffset = 0;
